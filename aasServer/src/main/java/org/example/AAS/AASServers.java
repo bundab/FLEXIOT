@@ -7,13 +7,19 @@ import org.eclipse.basyx.components.configuration.BaSyxContextConfiguration;
 import org.eclipse.basyx.components.registry.RegistryComponent;
 import org.eclipse.basyx.components.registry.configuration.BaSyxRegistryConfiguration;
 import org.eclipse.basyx.components.registry.configuration.RegistryBackend;
+import org.eclipse.paho.client.mqttv3.*;
+import org.example.AAS.MQTT.MqttSubscriberManager;
 
 public class AASServers {
     public static final String REGISTRYPATH = "http://0.0.0.0:4000/registry";
-    public static final String AASSERVERPATH = "http://0.0.0.0:4001/aasServer";
+    //public static final String AASSERVERPATH = "http://0.0.0.0:4001/aasServer";
 
     //MQTT
     private static final String BROKER_URL = "tcp://localhost:1883";
+    private Thread mqttHandlerThread;
+    private MqttSubscriberManager mqttSubscriberManager;
+    private String clientId = "AASServersTopicHandler";
+    private String topic = "DevicesTopicManager";
 
     //AAS Server and Registry threads
     Thread aasServerThread;
@@ -22,16 +28,77 @@ public class AASServers {
     public AASServers() {
         this.aasRegistryThread = new Thread(AASServers::startRegistry);
         this.aasServerThread = new Thread(AASServers::startAASServer);
+
+        try {
+            this.mqttSubscriberManager = new MqttSubscriberManager(BROKER_URL, 10000);
+        } catch (MqttException e) {
+            throw new RuntimeException(e);
+        }
+
+        // TODO: Implement the registration and delete handler's thread!!!
+        // Lambda segítségével egy külön szálban futtatjuk az MQTT subscriber logikát
+        mqttHandlerThread = new Thread(() -> {
+            try {
+                // MQTT kliens inicializálása
+                MqttClient client = new MqttClient(BROKER_URL, clientId);
+
+                // Callback beállítása az események kezeléséhez
+                client.setCallback(new MqttCallback() {
+                    @Override
+                    public void connectionLost(Throwable cause) {
+                        System.out.println("Kapcsolat megszakadt: " + cause.getMessage());
+                    }
+
+                    @Override
+                    public void messageArrived(String topic, MqttMessage message) {
+                        System.out.println("Üzenet érkezett a topicról (" + topic + "): " + new String(message.getPayload()));
+
+                        // TODO: Have to implement the publisher side as well (client), not only the server side (server)!!!!!
+                        String[] eventTypeAndTopic = message.toString().split(".");
+                        mqttSubscriberManager.handleEvent(eventTypeAndTopic[0], eventTypeAndTopic[1]);
+                    }
+
+                    @Override
+                    public void deliveryComplete(IMqttDeliveryToken token) {
+                        // Ez csak publisher esetén érdekes, de kötelező megvalósítani
+                    }
+                });
+
+                // Kapcsolódás a brokerhez
+                client.connect();
+                System.out.println("Kapcsolódás sikeres a brokerhez: " + BROKER_URL);
+
+                // Feliratkozás a topicra
+                client.subscribe(topic);
+                System.out.println("Feliratkozás a topicra: " + topic);
+
+                // A szál futása addig tartson, amíg nem szakítjuk meg manuálisan
+                while (!Thread.currentThread().isInterrupted()) {
+                    Thread.sleep(1000); // Várakozás, hogy ne terheljük a szálat
+                }
+
+                // Leiratkozás és kapcsolat bontása tisztán
+                client.unsubscribe(topic);
+                client.disconnect();
+                System.out.println("Kapcsolat lezárva és leiratkozás megtörtént.");
+
+            } catch (Exception e) {
+                System.err.println("Hiba történt az MQTT szál futása közben: " + e.getMessage());
+                e.printStackTrace();
+            }
+        });
     }
 
     public void start() {
         this.aasRegistryThread.start();
         this.aasServerThread.start();
+        this.aasRegistryThread.start();
     }
 
     public void stop() {
-        this.aasRegistryThread.interrupt();
+        //this.aasRegistryThread.interrupt();
         this.aasServerThread.interrupt();
+        this.mqttHandlerThread.interrupt();
     }
 
     /**
