@@ -1,0 +1,16 @@
+{
+  "modelType": {
+    "name": "SubmodelDescriptor"
+  },
+  "idShort": "StaticTemplateIDShort",
+  "identification": {
+    "idType": "Custom",
+    "id": "StaticTemplateID"
+  },
+  "endpoints": [
+    {
+      "type": "http",
+      "address": "http://192.168.139.187:4001/aasServer/shells/TemplateID/aas/submodels/StaticTemplateID/submodel"
+    }
+  ]
+}

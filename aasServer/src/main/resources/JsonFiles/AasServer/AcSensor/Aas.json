@@ -1,0 +1,69 @@
+{
+  "modelType": {
+    "name": "AssetAdministrationShell"
+  },
+  "idShort": "TemplateIDShort",
+  "identification": {
+    "idType": "Custom",
+    "id": "TemplateID"
+  },
+  "dataSpecification": [],
+  "embeddedDataSpecifications": [],
+  "submodels": [
+    {
+      "keys": [
+        {
+          "type": "AssetAdministrationShell",
+          "local": true,
+          "value": "TemplateID",
+          "idType": "Custom"
+        },
+        {
+          "type": "Submodel",
+          "local": true,
+          "value": "DynamicTemplateID",
+          "idType": "Custom"
+        }
+      ]
+    },
+    {
+      "keys": [
+        {
+          "type": "AssetAdministrationShell",
+          "local": true,
+          "value": "TemplateID",
+          "idType": "Custom"
+        },
+        {
+          "type": "Submodel",
+          "local": true,
+          "value": "StaticTemplateID",
+          "idType": "Custom"
+        }
+      ]
+    }
+  ],
+  "asset": {
+    "keys": [
+      {
+        "type": "Asset",
+        "local": true,
+        "value": "AssetTemplateID",
+        "idType": "Custom"
+      }
+    ],
+    "modelType": {
+      "name": "Asset"
+    },
+    "dataSpecification": [],
+    "embeddedDataSpecifications": [],
+    "idShort": "AssetTemplateIDShort",
+    "identification": {
+      "idType": "Custom",
+      "id": "AssetTemplateID"
+    },
+    "kind": "Instance"
+  },
+  "views": [],
+  "conceptDictionary": []
+}
