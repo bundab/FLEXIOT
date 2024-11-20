@@ -1,0 +1,21 @@
+{
+  "modelType": {
+    "name": "Property"
+  },
+  "dataSpecification": [],
+  "embeddedDataSpecifications": [],
+  "kind": "Instance",
+  "idShort": "DescriptionTemplateIDShort",
+  "value": "Deals with AC temperature and its behavior simulation according to the temperature",
+  "valueType": "String",
+  "parent": {
+    "keys": [
+      {
+        "type": "Submodel",
+        "local": true,
+        "value": "StaticTemplateID",
+        "idType": "Custom"
+      }
+    ]
+  }
+}

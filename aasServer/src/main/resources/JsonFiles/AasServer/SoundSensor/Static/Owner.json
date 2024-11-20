@@ -1,0 +1,21 @@
+{
+  "modelType": {
+    "name": "Property"
+  },
+  "dataSpecification": [],
+  "embeddedDataSpecifications": [],
+  "kind": "Instance",
+  "idShort": "OwnerTemplateIDShort",
+  "value": "TemplateValue",
+  "valueType": "String",
+  "parent": {
+    "keys": [
+      {
+        "type": "Submodel",
+        "local": true,
+        "value": "StaticTemplateID",
+        "idType": "Custom"
+      }
+    ]
+  }
+}
