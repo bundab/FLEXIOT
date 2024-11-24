@@ -1,0 +1,24 @@
+{
+  "idShort": "DynamicTemplateIDShort",
+  "identification": {
+    "idType": "Custom",
+    "id": "DynamicTemplateID"
+  },
+  "dataSpecification": [],
+  "embeddedDataSpecifications": [],
+  "modelType": {
+    "name": "Submodel"
+  },
+  "kind": "Instance",
+  "submodelElements": [],
+  "parent": {
+    "keys": [
+      {
+        "type": "AssetAdministrationShell",
+        "local": true,
+        "value": "TemplateID",
+        "idType": "Custom"
+      }
+    ]
+  }
+}
