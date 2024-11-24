@@ -1,19 +1,25 @@
 package org.example.WebServer.Controllers;
 
+import org.example.Client.MainFunctions.RegisterDevice.RegisterDevice;
 import org.example.WebServer.Entities.Company;
 import org.example.WebServer.Entities.Device;
+import org.example.WebServer.Interaction.DeviceTypeMapping;
 import org.example.WebServer.Repositories.CompanyRepository;
 import org.example.WebServer.Entities.Person;
 import org.example.WebServer.Repositories.DeviceRepository;
 import org.example.WebServer.Repositories.PersonRepository;
+import org.example.WebServer.RequestBodies.AddDeviceRequest;
 import org.example.WebServer.RequestBodies.CreateDeviceRequest;
 import org.example.WebServer.RequestBodies.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/company")
@@ -32,102 +38,175 @@ public class CompanyController {
     private DeviceRepository deviceRepository;
 
     @PostMapping("/register")
-    public String register(@RequestBody Company company) {
+    public ResponseEntity<String> register(@RequestBody Company company) {
+        // Check if company already exists
         if (companyRepository.findByName(company.getName()) != null) {
-            return "Company already exists!";
+            return new ResponseEntity<>("Company already exists!", HttpStatus.CONFLICT); // 409 Conflict
         }
 
+        // Hash the password and save the company
         String hashedPassword = passwordEncoder.encode(company.getPassword());
         company.setPassword(hashedPassword);
 
         companyRepository.save(company);
-        return "Company registered successfully: " + company.getName();
+
+        // Return success response
+        String responseMessage = "Company registered successfully: " + company.getName();
+        return new ResponseEntity<>(responseMessage, HttpStatus.CREATED); // 201 Created
+    }
+
+    @GetMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest lr) {
+
+        Company company = companyRepository.findByName(lr.name);
+
+        if (company != null && passwordEncoder.matches(lr.password, company.getPassword())) {
+            return ResponseEntity.ok("Login successful!");
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials.");
     }
 
     @PostMapping("/addPerson/{username}")
-    public String addPersonToCompany(@PathVariable String username,
-                                     @RequestBody LoginRequest loginRequest) {
-
+    public ResponseEntity<String> addPersonToCompany(@PathVariable String username,
+                                                     @RequestBody LoginRequest loginRequest) {
+        // Find the company by name
         Company company = companyRepository.findByName(loginRequest.name);
-
         if (company == null) {
-            return "Company not found!";
+            return new ResponseEntity<>("Company not found!", HttpStatus.NOT_FOUND); // 404 Not Found
         }
 
+        // Validate the company's password
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         if (!encoder.matches(loginRequest.password, company.getPassword())) {
-            return "Invalid password for company!";
+            return new ResponseEntity<>("Invalid password for company!", HttpStatus.UNAUTHORIZED); // 401 Unauthorized
         }
 
+        // Find the person by username
         Person person = personRepository.findByUsername(username);
-
         if (person == null) {
-            return "Person not found!";
+            return new ResponseEntity<>("Person not found!", HttpStatus.NOT_FOUND); // 404 Not Found
         }
 
+        // Check if the person is already in the company
         if (person.getCompany() != null && person.getCompany().getName().equals(loginRequest.name)) {
-            return "Person is already in this company!";
+            return new ResponseEntity<>("Person is already in this company!", HttpStatus.CONFLICT); // 409 Conflict
         }
 
+        // Associate the person with the company
         person.setCompany(company);
         personRepository.save(person);
 
         company.getEmployees().add(person);
         companyRepository.save(company);
 
-        return "Person added to company!";
+        // Return success response
+        return new ResponseEntity<>("Person added to company!", HttpStatus.OK); // 200 OK
     }
-
 
     @GetMapping("/users")
-    public List<String> getAllUsernamesInCompany(@RequestBody LoginRequest lr) {
+    public ResponseEntity<List<Person>> getAllUsersInCompany(@RequestBody LoginRequest lr) {
+        // Find the company by name
         Company company = companyRepository.findByName(lr.name);
-
-        if (company == null || !passwordEncoder.matches(lr.password, company.getPassword())) {
-            return List.of();
+        if (company == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404 Not Found
         }
 
+        // Validate the company's password
+        if (!passwordEncoder.matches(lr.password, company.getPassword())) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 401 Unauthorized
+        }
 
-        return company.getEmployees().stream()
-                .map(Person::getUsername)
-                .toList();
+        // Return the list of persons (employees) in the company with 200 OK
+        return new ResponseEntity<>(company.getEmployees(), HttpStatus.OK); // 200 OK
     }
 
+
     @GetMapping("/list")
-    public List<String> getAllCompanies() {
-        List<Company> people = companyRepository.findAll();
-        return people.stream()
-                .map(Company::getName)
-                .toList();
+    public ResponseEntity<List<Company>> getAllCompanies() {
+        // Fetch all companies from the repository
+        List<Company> companies = companyRepository.findAll();
+
+        // Return the list of companies with 200 OK
+        return new ResponseEntity<>(companies, HttpStatus.OK); // 200 OK
     }
 
     @GetMapping("/devices")
-    public List<String> getAllDevicesInCompany(@RequestBody LoginRequest lr) {
+    public ResponseEntity<List<Device>> getAllDevicesInCompany(@RequestBody LoginRequest lr) {
+        // Find the company by name
         Company company = companyRepository.findByName(lr.name);
-
-        if (company != null) {
-            return company.getDevices().stream()
-                    .map(Device::getType)
-                    .toList();
+        if (company == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404 Not Found
         }
-        return List.of();
+
+        // Validate the company's password
+        if (!passwordEncoder.matches(lr.password, company.getPassword())) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 401 Unauthorized
+        }
+
+        // Return the list of devices with 200 OK
+        return new ResponseEntity<>(company.getDevices(), HttpStatus.OK); // 200 OK
     }
 
-    @PostMapping("/create_device")
-    public String createDevice(@RequestBody CreateDeviceRequest cdr)
-    {
-        Company company = companyRepository.findByName(cdr.login.name);
 
-        if (company == null || !passwordEncoder.matches(cdr.login.password, company.getPassword())) {
-            return "Login unsuccessful";
+
+    @PostMapping("/create_device")
+    public ResponseEntity<String> createDevice(@RequestBody CreateDeviceRequest cdr) {
+        // Find the company by name
+        Company company = companyRepository.findByName(cdr.login.name);
+        if (company == null) {
+            return new ResponseEntity<>("Company not found", HttpStatus.NOT_FOUND); // 404 Not Found
         }
 
+        // Validate the company's password
+        if (!passwordEncoder.matches(cdr.login.password, company.getPassword())) {
+            return new ResponseEntity<>("Invalid password", HttpStatus.UNAUTHORIZED); // 401 Unauthorized
+        }
+
+        // Create the device and associate it with the company
         Device device = new Device();
         device.setType(cdr.type);
         company.getDevices().add(device);
+
+        // Save the device and update the company
         deviceRepository.insert(device);
         companyRepository.save(company);
 
-        return "Device created.";
+        RegisterDevice real_device = new RegisterDevice(device.getId(), DeviceTypeMapping.convertStringToDeviceType(cdr.type), cdr.login.name);
+        try {
+            real_device.execute();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        // Return success response
+        return new ResponseEntity<>("Device created successfully", HttpStatus.CREATED); // 201 Created
     }
+
+    /*
+    @PostMapping("/add_device")
+    public ResponseEntity<String> addDevice(@RequestBody AddDeviceRequest adr) {
+        // Find the company by username
+        Company company = companyRepository.findByName(adr.login.name);
+
+        // Check if the company exists and validate the password
+        if (company == null || !passwordEncoder.matches(adr.login.password, company.getPassword())) {
+            return new ResponseEntity<>("Login unsuccessful", HttpStatus.UNAUTHORIZED); // 401 Unauthorized
+        }
+
+        Optional<Device> device = deviceRepository.findById(adr.Id);
+        if (device.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        company.getDevices().add(device.get());
+        // Save the the person
+        companyRepository.save(company);
+
+        // Return success response
+        return new ResponseEntity<>("Device created successfully.", HttpStatus.CREATED); // 201 Created
+    }
+
+     */
+
 }
