@@ -1,0 +1,63 @@
+{
+  "modelType": {
+    "name": "AssetAdministrationShellDescriptor"
+  },
+  "idShort": "TemplateIDShort",
+  "identification": {
+    "idType": "Custom",
+    "id": "TemplateID"
+  },
+  "endpoints": [
+    {
+      "type": "http",
+      "address": "http://localhost:4001/aasServer/shells/TemplateID/aas"
+    }
+  ],
+  "asset": {
+    "modelType": {
+      "name": "Asset"
+    },
+    "dataSpecification": [],
+    "embeddedDataSpecifications": [],
+    "idShort": "AssetTemplateIDShort",
+    "identification": {
+      "idType": "Custom",
+      "id": "AssetTemplateID"
+    },
+    "kind": "Instance"
+  },
+  "submodels": [
+    {
+      "modelType": {
+        "name": "SubmodelDescriptor"
+      },
+      "idShort": "StaticTemplateIDShort",
+      "identification": {
+        "idType": "Custom",
+        "id": "StaticTemplateID"
+      },
+      "endpoints": [
+        {
+          "type": "http",
+          "address": "http://localhost:4001/aasServer/shells/TemplateID/aas/submodels/StaticTemplateIDShort/submodel"
+        }
+      ]
+    },
+    {
+      "modelType": {
+        "name": "SubmodelDescriptor"
+      },
+      "idShort": "DynamicTemplateIDShort",
+      "identification": {
+        "idType": "Custom",
+        "id": "DynamicTemplateID"
+      },
+      "endpoints": [
+        {
+          "type": "http",
+          "address": "http://localhost:4001/aasServer/shells/TemplateID/aas/submodels/DynamicTemplateIDShort/submodel"
+        }
+      ]
+    }
+  ]
+}

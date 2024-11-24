@@ -1,0 +1,21 @@
+{
+  "modelType": {
+    "name": "Property"
+  },
+  "dataSpecification": [],
+  "embeddedDataSpecifications": [],
+  "kind": "Instance",
+  "idShort": "WindSpeedTemplateIDShort",
+  "value": "TemplateValue",
+  "valueType": "float",
+  "parent": {
+    "keys": [
+      {
+        "type": "Submodel",
+        "local": true,
+        "value": "DynamicTemplateID",
+        "idType": "Custom"
+      }
+    ]
+  }
+}

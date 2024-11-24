@@ -1,0 +1,36 @@
+{
+  "modelType": {
+    "name": "AssetAdministrationShell"
+  },
+  "idShort": "TemplateIDShort",
+  "identification": {
+    "idType": "Custom",
+    "id": "TemplateID"
+  },
+  "dataSpecification": [],
+  "embeddedDataSpecifications": [],
+  "submodels": [],
+  "asset": {
+    "keys": [
+      {
+        "type": "Asset",
+        "local": true,
+        "value": "AssetTemplateID",
+        "idType": "Custom"
+      }
+    ],
+    "modelType": {
+      "name": "Asset"
+    },
+    "dataSpecification": [],
+    "embeddedDataSpecifications": [],
+    "idShort": "AssetTemplateIDShort",
+    "identification": {
+      "idType": "Custom",
+      "id": "AssetTemplateID"
+    },
+    "kind": "Instance"
+  },
+  "views": [],
+  "conceptDictionary": []
+}
