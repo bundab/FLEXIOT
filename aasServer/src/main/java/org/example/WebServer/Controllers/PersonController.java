@@ -34,13 +34,14 @@ public class PersonController {
     private DeviceRepository deviceRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody LoginRequest request) {
+    public ResponseEntity<Person> register(@RequestBody LoginRequest request) {
         // Check if the username already exists
         if (personRepository.findByUsername(request.name) != null) {
-            return new ResponseEntity<>("Username already exists!", HttpStatus.CONFLICT); // 409 Conflict
+
+            //return new ResponseEntity<>("Username already exists!", HttpStatus.CONFLICT); // 409 Conflict
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+
         }
-
-
         // Hash the password and save the person
         String hashedPassword = passwordEncoder.encode(request.password);
         Person person = new Person();
@@ -51,7 +52,8 @@ public class PersonController {
 
         // Return success response
         String responseMessage = "Person registered successfully: " + person.getUsername();
-        return new ResponseEntity<>(responseMessage, HttpStatus.CREATED); // 201 Created
+        //return new ResponseEntity<>(responseMessage, HttpStatus.CREATED); // 201 Created
+        return ResponseEntity.status(HttpStatus.OK).body(person);
     }
 
 
@@ -64,7 +66,7 @@ public class PersonController {
         return new ResponseEntity<>(people, HttpStatus.OK); // 200 OK
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<Person> login(@RequestBody LoginRequest lr) {
 
         Person person = personRepository.findByUsername(lr.name);

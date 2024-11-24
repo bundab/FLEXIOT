@@ -82,7 +82,7 @@ public class CompanyController {
 
         // Validate the company's password
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        if (!encoder.matches(loginRequest.password, company.getPassword())) {
+        if (!loginRequest.password.equals(company.getPassword())) {
             return new ResponseEntity<>("Invalid password for company!", HttpStatus.UNAUTHORIZED); // 401 Unauthorized
         }
 
@@ -117,7 +117,7 @@ public class CompanyController {
         }
 
         // Validate the company's password
-        if (!passwordEncoder.matches(password, company.getPassword())) {
+        if (!password.trim().equals(company.getPassword().trim())) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 401 Unauthorized
         }
 
