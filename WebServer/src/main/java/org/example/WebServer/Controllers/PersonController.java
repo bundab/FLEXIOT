@@ -1,5 +1,6 @@
 package org.example.WebServer.Controllers;
 
+import org.example.Client.MainFunctions.GetDevice.GetDevice;
 import org.example.Client.MainFunctions.RegisterDevice.RegisterDevice;
 import org.example.WebServer.Entities.Device;
 import org.example.WebServer.Interaction.DeviceTypeMapping;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -81,13 +83,22 @@ public class PersonController {
         // Find the person by username
         Person person = personRepository.findByUsername(lr.name);
 
-        // If the person exists, return their devices
-        if (person != null) {
-            return new ResponseEntity<>(person.getDevices(), HttpStatus.OK); // 200 OK
+        if (person == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // 200 OK
         }
 
-        // If the person doesn't exist, return 404 Not Found
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404 Not Found
+        List<Device> devices = new ArrayList<Device>(person.getDevices());
+        for (Device device : devices) {
+            GetDevice real_device = new GetDevice(device.getId(), DeviceTypeMapping.convertStringToDeviceType(device.getType()));
+            try {
+                real_device.execute();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            device.setValues(real_device.getValues());
+        }
+
+        return new ResponseEntity<>(devices, HttpStatus.OK);
     }
 
 
