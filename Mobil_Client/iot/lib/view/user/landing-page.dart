@@ -8,7 +8,9 @@ import 'package:iot/common/constants.dart';
 import 'package:iot/main.dart';
 import 'package:iot/model/device.dart';
 import 'package:iot/model/user.dart';
-import 'package:iot/view/user/company-sensor-card.dart';
+import 'package:iot/view/user/sensor-card.dart';
+
+import 'sensor-card.dart';
 
 class LandingPage extends StatefulWidget {
   User user;
@@ -247,6 +249,12 @@ class _LandingPageState extends State<LandingPage> {
           )
         ],
       ),
+    );
+  }
+
+  deleteDevice(String id) async {
+    final response = await http.delete(
+      Uri.parse('${Constants.BASE_URL}/person/delete_device?device_id=$id'),
     );
   }
 
