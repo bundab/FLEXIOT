@@ -1,5 +1,6 @@
 package org.example.WebServer.Controllers;
 
+import org.example.Client.MainFunctions.GetDevice.GetDevice;
 import org.example.Client.MainFunctions.RegisterDevice.RegisterDevice;
 import org.example.WebServer.Entities.Company;
 import org.example.WebServer.Entities.Device;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -136,20 +138,26 @@ public class CompanyController {
     }
 
     @GetMapping("/devices")
-    public ResponseEntity<List<Device>> getAllDevicesInCompany(@RequestBody LoginRequest lr) {
+    public ResponseEntity<List<Device>> getAllDevicesForCompany(@RequestBody LoginRequest lr) {
         // Find the company by name
         Company company = companyRepository.findByName(lr.name);
+
         if (company == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404 Not Found
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // 200 OK
         }
 
-        // Validate the company's password
-        if (!passwordEncoder.matches(lr.password, company.getPassword())) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 401 Unauthorized
+        List<Device> devices = new ArrayList<Device>(company.getDevices());
+        for (Device device : devices) {
+            GetDevice real_device = new GetDevice(device.getId(), DeviceTypeMapping.convertStringToDeviceType(device.getType()));
+            try {
+                real_device.execute();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            device.setValues(real_device.getValues());
         }
 
-        // Return the list of devices with 200 OK
-        return new ResponseEntity<>(company.getDevices(), HttpStatus.OK); // 200 OK
+        return new ResponseEntity<>(devices, HttpStatus.OK);
     }
 
 
