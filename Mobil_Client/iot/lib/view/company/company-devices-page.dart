@@ -1,5 +1,7 @@
 import 'dart:async';
-
+import 'dart:convert';
+import 'package:iot/common/constants.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:iot/main.dart';
@@ -37,12 +39,86 @@ class _CompanyDevicesPageState extends State<CompanyDevicesPage> {
     setState(() {
       isLoading = true;
     });
+    devices.clear();
+    await getAllDevices(widget.company);
+    
     Timer(const Duration(seconds: 2), () {
       setState(() {
         isLoading = false;
       });
     });
   }
+
+getAllDevices(company) async{
+      
+  print('${Constants.BASE_URL}/company/devices?name=${company.username}&password=${company.password}');
+
+      try{
+          
+          final response = await http.get(
+              Uri.parse('${Constants.BASE_URL}/company/devices?name=${company.username}&password=${company.password}')
+             
+          );
+          if (response.statusCode == 200) {  
+              List<dynamic> deviceList = jsonDecode(response.body);  
+              setState(() {
+                  devices = deviceList.map((deviceData) {
+                  return Device.fromJson(deviceData); 
+                  }).toList();
+              });
+          } else {
+             print('Failed to load devices: ${response.statusCode}');
+          }
+
+      } catch(e){
+            print('Error during device query: $e');
+      }
+
+  }
+
+
+  addNewDevice(user) async {
+  var deviceName = deviceNameController.text; 
+  print('Device name: $deviceName');
+
+  var createDeviceRequest = {
+    'login': {
+      'name': user.username, 
+      'password': user.password 
+    },
+    'type': deviceName 
+  };
+
+  try {
+
+    final response = await http.post(
+      Uri.parse('${Constants.BASE_URL}/company/create_device'), 
+      headers: {
+        'Content-Type': 'application/json', 
+      },
+      body: jsonEncode(createDeviceRequest), 
+    );
+
+
+    if (response.statusCode == 201) {
+      print("Device created successfully!");
+     
+      setState(() {
+        devices.clear();
+        loadData();
+      });    
+    } else if (response.statusCode == 401) {
+      print("Error: Login unsuccessful.");
+    } else {
+      print("Failed to create device. Status code: ${response.statusCode}");
+      print("Error: ${response.body}");
+    }
+  } catch (e) {
+
+    print("Error occurred while creating device: $e");
+  }
+}
+
 
   navigateToUsers() {
     Navigator.push(
@@ -66,7 +142,7 @@ class _CompanyDevicesPageState extends State<CompanyDevicesPage> {
     );
   }
 
-  addNewDevice() {
+  /*addNewDevice() {
     var deviceName = deviceNameController.text;
     var description = descriptionController.text;
     var company = companyController.text;
@@ -80,7 +156,7 @@ class _CompanyDevicesPageState extends State<CompanyDevicesPage> {
     print(data1);
     print(data2);
     print(data3);
-  }
+  }*/
 
   logout() {
     Navigator.push(
@@ -227,7 +303,7 @@ class _CompanyDevicesPageState extends State<CompanyDevicesPage> {
         title: const Text("Devices"),
         actions: [
           IconButton(
-            onPressed: () => print(""),
+            onPressed: () => addNewDevice(widget.company),
             icon: const Icon(Icons.add),
             color: Colors.black,
           ),

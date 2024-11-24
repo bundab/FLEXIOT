@@ -24,12 +24,6 @@ class LandingPage extends StatefulWidget {
 class _LandingPageState extends State<LandingPage> {
   final deviceNameController = TextEditingController();
 
-  /*final descriptionController = TextEditingController();
-  final companyController = TextEditingController();
-  final data1Controller = TextEditingController();
-  final data2Controller = TextEditingController();
-  final data3Controller = TextEditingController();*/
-
 
   List devices = [
    // Device("1", 'Name 1'),
@@ -42,6 +36,10 @@ class _LandingPageState extends State<LandingPage> {
     setState(() {
       isLoading = true;
     });
+
+    devices.clear();
+    await getAllDevices(widget.user);
+    
     Timer(const Duration(seconds: 2), () {
       setState(() {
         isLoading = false;
@@ -56,11 +54,7 @@ class _LandingPageState extends State<LandingPage> {
     //   isLoading = false;
     // });
 
-    devices.clear();
-    await getAllDevices(widget.user);
-    setState(() {
-       isLoading = false;
-    });
+    
   }
 
   getAllDevices(user) async{
@@ -69,9 +63,8 @@ class _LandingPageState extends State<LandingPage> {
         'password': user.password,
       };
       try{
-          String username = registerRequest['name'];
           final response = await http.get(
-              Uri.parse('${Constants.BASE_URL}/person/devices?username=$username'),
+              Uri.parse('${Constants.BASE_URL}/person/devices?name=${user.username}&password=${user.password}'),
               headers: {'Authorization': 'Bearer ${""}'},
           );
           if (response.statusCode == 200) {  
@@ -117,7 +110,11 @@ class _LandingPageState extends State<LandingPage> {
 
     if (response.statusCode == 201) {
       print("Device created successfully!");
-      // TODO: loadData() !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     
+      setState(() {
+        devices.clear();
+        loadData();
+      });    
     } else if (response.statusCode == 401) {
       print("Error: Login unsuccessful.");
     } else {
@@ -129,22 +126,6 @@ class _LandingPageState extends State<LandingPage> {
     print("Error occurred while creating device: $e");
   }
 }
-
-
- /* fetchTaskPrescriberUserData() async {
-    for (Device device in devices) {
-      final response = await http.get(
-        Uri.parse(
-          '${Constants.BASE_URL}/users/user/99999999999',
-        ),
-        headers: {'Authorization': 'Bearer ${""}'},
-      );
-      var decodedUser = jsonDecode(response.body);
-
-      // task.creatorFirstName = decodedUser['firstName'];
-      // task.creatorLastName = decodedUser['lastName'];
-    }
-  }*/
 
   addDevicePopup() {
     showDialog(
@@ -186,12 +167,7 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-/*  addNewDevice() {
-    var deviceName = deviceNameController.text;
-    //TODO add device POST
-    print(deviceName);
-    
-  }*/
+
 
   logout() {
     Navigator.push(

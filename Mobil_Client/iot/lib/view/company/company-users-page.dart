@@ -133,8 +133,6 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
         loadData();
       });     
 
-
-      //TODO loadData()  REFRESH
   }
 
 
