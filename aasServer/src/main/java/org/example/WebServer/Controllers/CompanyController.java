@@ -42,7 +42,7 @@ public class CompanyController {
         // Check if company already exists
         if (companyRepository.findByName(company.getName()) != null) {
             //return new ResponseEntity<>("Company already exists!", HttpStatus.CONFLICT); // 409 Conflict
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(company);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(company);
         }
 
         // Hash the password and save the company
@@ -54,7 +54,7 @@ public class CompanyController {
         // Return success response
         String responseMessage = "Company registered successfully: " + company.getName();
        // return new ResponseEntity<>(responseMessage, HttpStatus.CREATED); // 201 Created
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(company);
+        return ResponseEntity.status(HttpStatus.OK).body(company);
     }
 
     @PostMapping("/login")
