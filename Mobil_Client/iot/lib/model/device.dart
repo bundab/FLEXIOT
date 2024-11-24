@@ -1,16 +1,11 @@
 class Device {
-  Device(
-      this.id, this.name, this.description, this.currentValue, this.addedDate);
-  int id;
-  String name;
-  String description;
-  String currentValue;
-  DateTime addedDate;
+  Device(this.id, this.type);
+  String id;
+  String type;
 
   Device.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        name = json['name'],
-        description = json['description'],
-        currentValue = json['currentValue'],
-        addedDate = DateTime.parse((json['addedDate']));
+        type = json['type'];
+
+  Map<String, dynamic> toJson() => {'id': id, 'type': type};
 }

@@ -1,28 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:iot/common/constants.dart';
+import 'package:iot/model/company.dart';
 import 'package:iot/model/device.dart';
 import 'package:iot/model/user.dart';
 import 'package:http/http.dart' as http;
 
-class SensorDetail extends StatefulWidget {
-  SensorDetail({
+class UserDetail extends StatefulWidget {
+  UserDetail({
     super.key,
-    required this.device,
+    required this.company,
     required this.user,
   });
-  Device device;
+  final Company company;
   final User user;
 
   @override
-  State<SensorDetail> createState() => _SensorDetailState();
+  State<UserDetail> createState() => _UserDetailState();
 }
 
-class _SensorDetailState extends State<SensorDetail> {
+class _UserDetailState extends State<UserDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.device.name),
+        title: Text(widget.user.username),
         backgroundColor: Colors.white,
       ),
       body: Container(
@@ -44,43 +45,22 @@ class _SensorDetailState extends State<SensorDetail> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("valami:"),
-                    Text(widget.device.name),
+                    const Text("Id:"),
+                    Text(widget.user.id),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("valami:"),
-                    Text(widget.device.name),
+                    const Text("Username:"),
+                    Text(widget.user.username),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("valami:"),
-                    Text(widget.device.name),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("valami:"),
-                    Text(widget.device.name),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("valami:"),
-                    Text(widget.device.name),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("valami:"),
-                    Text(widget.device.name),
+                    const Text("Age:"),
+                    Text(widget.user.age.toString()),
                   ],
                 ),
               ],

@@ -1,5 +1,5 @@
 class Constants {
   Constants._();
 
-  static const BASE_URL = "https://localhost:8080/api";
+  static const BASE_URL = "http://192.168.0.107:8080/api";
 }

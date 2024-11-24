@@ -1,35 +1,40 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:iot/main.dart';
+import 'package:iot/model/company.dart';
 import 'package:iot/model/device.dart';
 import 'package:iot/model/user.dart';
 import 'package:iot/view/company/company-devices-page.dart';
 import 'package:iot/view/company/company-user-card.dart';
+import 'package:iot/common/constants.dart';
+import 'package:http/http.dart' as http;
 
 class CompanyUsersPage extends StatefulWidget {
-  User user;
+  Company company;
 
-  CompanyUsersPage({super.key, required this.user});
+  CompanyUsersPage({super.key, required this.company});
 
   @override
   State<CompanyUsersPage> createState() => _CompanyUsersPageState();
 }
 
 class _CompanyUsersPageState extends State<CompanyUsersPage> {
-  final deviceNameController = TextEditingController();
+  final userNameController = TextEditingController();
 
-  final descriptionController = TextEditingController();
+  /*final descriptionController = TextEditingController();
   final companyController = TextEditingController();
   final data1Controller = TextEditingController();
   final data2Controller = TextEditingController();
-  final data3Controller = TextEditingController();
+  final data3Controller = TextEditingController();*/
 
-  List devices = [
-    Device(0, 'Name 1', 'Description', 'Current value', DateTime.now()),
-    Device(1, 'Name 2', 'Description', 'Current value', DateTime.now()),
-    Device(2, 'Name 3', 'Description', 'Current value', DateTime.now()),
+  List<dynamic> usersList = [];
+  List users = [
+    User("1", 'Name 1', "", 0),
+    User("2", 'Name 2', "", 0),
+    User("3", 'Name 3', "", 0),
   ];
   bool isLoading = false;
 
@@ -37,6 +42,10 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
     setState(() {
       isLoading = true;
     });
+
+    
+    await getAllUsers(widget.company);
+    
     Timer(const Duration(seconds: 2), () {
       setState(() {
         isLoading = false;
@@ -44,12 +53,33 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
     });
   }
 
+  getAllUsers(company) async {
+  try {
+    print("user data:");
+    print(company.username);
+    print(company.password);
+
+    final response = await http.get(
+      Uri.parse('${Constants.BASE_URL}/company/users?name=${company.username}&password=${company.password}'), 
+    );
+
+    if (response.statusCode == 200) {
+      usersList = jsonDecode(response.body); 
+      users = usersList.map((user) => User.fromJson(user)).toList();
+    } else {
+      print('Failed to load users: ${response.statusCode}'); 
+    }
+  } catch (e) {
+    print('Error during users query: $e'); 
+  }
+}
+
   navigateToUsers() {
     Navigator.push(
       context,
       CupertinoPageRoute(
         builder: (context) => CompanyUsersPage(
-          user: widget.user,
+          company: widget.company,
         ),
       ),
     );
@@ -60,27 +90,53 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
       context,
       CupertinoPageRoute(
         builder: (context) => CompanyDevicesPage(
-          user: widget.user,
+          company: widget.company,
         ),
       ),
     );
   }
 
-  addNewDevice() {
-    var deviceName = deviceNameController.text;
-    var description = descriptionController.text;
-    var company = companyController.text;
-    var data1 = data1Controller.text;
-    var data2 = data2Controller.text;
-    var data3 = data3Controller.text;
+  addNewUser(company) async {
+      var userName = userNameController.text;
+       print(userName);
+        var loginRequest = {
+          'name': company.username, 
+          'password': company.password
+        };
 
-    print(deviceName);
-    print(description);
-    print(company);
-    print(data1);
-    print(data2);
-    print(data3);
+      try {
+        final response = await http.post(
+          Uri.parse('${Constants.BASE_URL}/company/addPerson/$userName'), 
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(loginRequest), 
+        );
+
+        if (response.statusCode == 200) {
+          print("Person added to company successfully!");
+        } else if (response.statusCode == 404) {
+          print("Error: ${jsonDecode(response.body)}");
+        } else if (response.statusCode == 401) {
+          print("Error: Invalid password for company.");
+        } else if (response.statusCode == 409) {
+          print("Error: Person is already in this company.");
+        } else {
+          print("Failed to add person to company. Status code: ${response.statusCode}");
+        }
+      } catch (e) {
+        print("Error occurred while adding user: $e");
+      }
+
+      setState(() {
+        users.clear();
+        loadData();
+      });     
+
+
+      //TODO loadData()  REFRESH
   }
+
 
   logout() {
     Navigator.push(
@@ -94,7 +150,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
         ),
       ),
     );
-    widget.user = User(0, '', '', '', '', false);
+    widget.company = Company('', '');
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -155,7 +211,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
                   decoration: const InputDecoration(
                     labelText: 'Username',
                   ),
-                  controller: deviceNameController,
+                  controller: userNameController,
                 ),
               ],
             ),
@@ -169,7 +225,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
             ),
             TextButton(
               onPressed: () {
-                addNewDevice();
+                addNewUser(widget.company);
                 Navigator.of(context).pop();
               },
               child: const Text('Add'),
@@ -203,7 +259,7 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
                   decoration: const BoxDecoration(
                     color: Colors.white,
                   ),
-                  child: Text(widget.user.username,
+                  child: Text(widget.company.username,
                       style: const TextStyle(fontSize: 24)),
                 ),
                 Column(
@@ -278,11 +334,11 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
               children: [
                 Expanded(
                   child: ListView.builder(
-                    itemCount: devices.length,
+                    itemCount: users.length,
                     itemBuilder: (BuildContext context, index) {
                       return UserCard(
-                        device: devices[index],
-                        user: widget.user,
+                        user: users[index],
+                        company: widget.company,
                       );
                     },
                   ),

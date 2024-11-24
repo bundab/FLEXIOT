@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:iot/common/constants.dart';
+import 'package:iot/model/company.dart';
 import 'package:iot/model/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:iot/view/company/company-users-page.dart';
@@ -37,109 +38,150 @@ class _LoginPageState extends State<LoginPage> {
   final loginPasswordTextController = TextEditingController();
   final registerUsernameTextController = TextEditingController();
   final registerPasswordTextController = TextEditingController();
+  bool isCompanyProfileSelected = false;
 
-  User user = User(0, '', '', '', '', true);
+  User user = User("", '', '', 2);
 
   login() async {
     String username = loginUsernameTextController.text;
     String password = loginPasswordTextController.text;
 
-    // final authenticationResponse = await authenticate(username, password);
+    final loginRequest = {
+      'name': username,
+      'password': password,
+    };
 
-    // if (authenticationResponse.statusCode != 200) {
-    // print(authenticationResponse.statusCode);
-    // return;
-    // }
+    try {
+      if (isCompanyProfileSelected) {
+        final response = await http.post(
+          Uri.parse('${Constants.BASE_URL}/company/login'),
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          body: jsonEncode(loginRequest),
+        );
 
-    // final token = await json.decode(authenticationResponse.body)['token'];
+        var responseBody = jsonDecode(response.body);
 
-    // final userDataResponse = await fetchUserData(username, token);
-    // final decodedUserData = json.decode(userDataResponse.body);
+        var company = Company(
+             username,
+            password);
 
-    // user = User(
-    //   decodedUserData['id'],
-    //   decodedUserData['firstName'],
-    //   decodedUserData['lastName'],
-    //   decodedUserData['username'],
-    //   token,
-    //   false,
-    // );
+        if (response.statusCode == 200) {
+          navigateAfterSubmitCompany(company);
+          var responseBody = jsonDecode(response.body);
 
-    navigateAfterSubmit();
+          print("user's username: " + user.username);
+        } else {
+          print('Login failed with status code: ${response.statusCode}');
+        }
+      } else {   //USER
+        final response = await http.post(
+          Uri.parse('${Constants.BASE_URL}/person/login'),
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          body: jsonEncode(loginRequest),
+        );
+
+        var responseBody = jsonDecode(response.body);
+
+        user = User(
+            responseBody['id'],
+            username,  
+            password,
+            0
+            );
+
+        if (response.statusCode == 200) {
+          print(jsonDecode(response.body));
+
+          navigateAfterSubmitUser(user);
+        } else {
+          print('Login failed with status code: ${response.statusCode}');
+        }
+      }
+    } catch (e) {
+      print('Error during login: $e');
+    }
   }
 
   register() async {
     String username = registerUsernameTextController.text;
     String password = registerPasswordTextController.text;
 
-// final authenticationResponse = await authenticate(username, password);
+    final registerRequest = {
+      'name': username,
+      'password': password,
+    };
 
-    // if (authenticationResponse.statusCode != 200) {
-    // print(authenticationResponse.statusCode);
-    // return;
-    // }
+    try {
+      if (isCompanyProfileSelected) {
+        final response = await http.post(
+          Uri.parse('${Constants.BASE_URL}/company/register'),
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          body: jsonEncode(registerRequest),
+        );
 
-    // final token = await json.decode(authenticationResponse.body)['token'];
+        print(response.body);
+        var responseBody = jsonDecode(response.body);
+        print(response.statusCode);
 
-    // final userDataResponse = await fetchUserData(username, token);
-    // final decodedUseaarData = json.decode(userDataResponse.body);
+        var company = Company(
+            username,
+            password
+        );
+        if (response.statusCode == 200) {
+          print('Registration successful');
+          navigateAfterSubmitCompany(company);
+        } else {
+          print('Registration failed with status code: ${response.statusCode}');
+        }
+      } else {    //USER
+        final response = await http.post(
+          Uri.parse('${Constants.BASE_URL}/person/register'),
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          body: jsonEncode(registerRequest),
+        );
+        
 
-    // user = User(
-    //   decodedUserData['id'],
-    //   decodedUserData['firstName'],
-    //   decodedUserData['lastName'],
-    //   decodedUserData['username'],
-    //   token,
-    //   false,
-    // );
-
-    navigateAfterSubmit();
-  }
-
-  httpLogin(String username, String password) async {
-    return await http.post(
-      Uri.parse('${Constants.BASE_URL}/auth/login'),
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(
-        <String, String>{'username': username, 'password': password},
-      ),
-    );
-  }
-
-  httpRegister(String username, String password) async {
-    return await http.post(
-      Uri.parse('${Constants.BASE_URL}/auth/register'),
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(
-        <String, String>{'username': username, 'password': password},
-      ),
-    );
-  }
-
-  navigateAfterSubmit() {
-    if (!user.isAdmin) {
-      Navigator.push(
-        context,
-        CupertinoPageRoute(
-          builder: (context) => LandingPage(
-            user: user,
-          ),
-        ),
-      );
-    } else {
-      Navigator.push(
-        context,
-        CupertinoPageRoute(
-          builder: (context) => CompanyUsersPage(
-            user: user,
-          ),
-        ),
-      );
+        var responseBody = jsonDecode(response.body);
+        print(responseBody);
+        user = User(
+            responseBody['id'],
+            username,
+            password,
+            0);
+       
+        if (response.statusCode == 200) {
+         
+          navigateAfterSubmitUser(user);
+        } else {
+          print('Registration failed with status code: ${response.statusCode}');
+        }
+      }
+    } catch (e) {
+      print('Error during registration: $e');
     }
+  }
+
+
+  navigateAfterSubmitCompany(Company company) {
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (context) => CompanyUsersPage(
+          company: company,
+        ),
+      ),
+    );
+  }
+
+  navigateAfterSubmitUser(User user) {
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (context) => LandingPage(
+          user: user,
+        ),
+      ),
+    );
   }
 
   @override
@@ -304,6 +346,25 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(
                   height: 20,
                 ),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isCompanyProfileSelected,
+                      onChanged: (bool? newValue) {
+                        setState(() {
+                          isCompanyProfileSelected = newValue!;
+                        });
+                      },
+                    ),
+                    const Text(
+                      "Company profile",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
                   decoration: BoxDecoration(
@@ -317,7 +378,7 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: (registerUsernameTextController.text.isEmpty ||
                             registerPasswordTextController.text.isEmpty)
                         ? null
-                        : login,
+                        : register,
                     style: ButtonStyle(
                       padding: WidgetStateProperty.all(
                         const EdgeInsets.only(left: 50, right: 50),
@@ -341,3 +402,61 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
+
+/*
+  login() async {
+    String username = loginUsernameTextController.text;
+    String password = loginPasswordTextController.text;
+
+    // final authenticationResponse = await authenticate(username, password);
+
+    // if (authenticationResponse.statusCode != 200) {
+    // print(authenticationResponse.statusCode);
+    // return;
+    // }
+
+    // final token = await json.decode(authenticationResponse.body)['token'];
+
+    // final userDataResponse = await fetchUserData(username, token);
+    // final decodedUserData = json.decode(userDataResponse.body);
+
+    // user = User(
+    //   decodedUserData['id'],
+    //   decodedUserData['firstName'],
+    //   decodedUserData['lastName'],
+    //   decodedUserData['username'],
+    //   token,
+    //   false,
+    // );
+
+    navigateAfterSubmit();
+  }
+
+  register() async {
+    String username = registerUsernameTextController.text;
+    String password = registerPasswordTextController.text;
+
+// final authenticationResponse = await authenticate(username, password);
+
+    // if (authenticationResponse.statusCode != 200) {
+    // print(authenticationResponse.statusCode);
+    // return;
+    // }
+
+    // final token = await json.decode(authenticationResponse.body)['token'];
+
+    // final userDataResponse = await fetchUserData(username, token);
+    // final decodedUseaarData = json.decode(userDataResponse.body);
+
+    // user = User(
+    //   decodedUserData['id'],
+    //   decodedUserData['firstName'],
+    //   decodedUserData['lastName'],
+    //   decodedUserData['username'],
+    //   token,
+    //   false,
+    // );
+
+    navigateAfterSubmit();
+  }*/

@@ -1,31 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:iot/model/company.dart';
 import 'package:iot/model/device.dart';
 import 'package:iot/model/user.dart';
-import 'package:iot/view/sensor-detail.dart';
+import 'package:iot/view/company/company-sensor-detail.dart';
 
-class SensorCard extends StatefulWidget {
-  SensorCard({
+class CompanySensorCard extends StatefulWidget {
+  CompanySensorCard({
     super.key,
+    required this.company,
     required this.device,
-    required this.user,
+    required this.deleteDeviceCallback
   });
+  Company company;
   Device device;
-  final User user;
+  final Function deleteDeviceCallback;
 
   @override
-  State<SensorCard> createState() => _SensorCardState();
+  State<CompanySensorCard> createState() => _CompanySensorCardState();
 }
 
-class _SensorCardState extends State<SensorCard> {
+class _CompanySensorCardState extends State<CompanySensorCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => SensorDetail(
+          builder: (context) => CompanySensorDetail(
             device: widget.device,
-            user: widget.user,
+            company: widget.company,
           ),
         ),
       ),
@@ -51,14 +54,14 @@ class _SensorCardState extends State<SensorCard> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        widget.device.name,
+                        widget.device.id,
                         style: const TextStyle(
                             color: Colors.black,
                             fontSize: 25,
                             fontWeight: FontWeight.bold),
                       ),
                       IconButton(
-                        onPressed: () => print(""),
+                        onPressed: () => widget.deleteDeviceCallback(widget.device.id),
                         icon: const Icon(
                           Icons.delete,
                           color: Colors.red,
@@ -77,57 +80,22 @@ class _SensorCardState extends State<SensorCard> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text("valami:"),
-                                  Text(widget.device.name),
+                                  const Text("Id:"),
+                                  Text(widget.device.id),
                                 ],
                               ),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text("valami:"),
-                                  Text(widget.device.name),
+                                  const Text("Type:"),
+                                  Text(widget.device.type),
                                 ],
                               ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text("valami:"),
-                                  Text(widget.device.name),
-                                ],
-                              ),
+                              
                             ],
                           ),
                         ],
-                      ),
-                      SizedBox(
-                        width: 150,
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text("valami:"),
-                                Text(widget.device.name),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text("valami:"),
-                                Text(widget.device.name),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text("valami:"),
-                                Text(widget.device.name),
-                              ],
-                            ),
-                          ],
-                        ),
                       ),
                     ],
                   ),

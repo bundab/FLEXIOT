@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:iot/main.dart';
+import 'package:iot/model/company.dart';
 import 'package:iot/model/device.dart';
-import 'package:iot/model/user.dart';
+import 'package:iot/view/company/company-sensor-card.dart';
 import 'package:iot/view/company/company-users-page.dart';
-import 'package:iot/view/sensor-card.dart';
 
 class CompanyDevicesPage extends StatefulWidget {
-  User user;
+  Company company;
 
-  CompanyDevicesPage({super.key, required this.user});
+  CompanyDevicesPage({super.key, required this.company});
 
   @override
   State<CompanyDevicesPage> createState() => _CompanyDevicesPageState();
@@ -27,9 +27,9 @@ class _CompanyDevicesPageState extends State<CompanyDevicesPage> {
   final data3Controller = TextEditingController();
 
   List devices = [
-    Device(0, 'Name 1', 'Description', 'Current value', DateTime.now()),
-    Device(1, 'Name 2', 'Description', 'Current value', DateTime.now()),
-    Device(2, 'Name 3', 'Description', 'Current value', DateTime.now()),
+    Device("1", 'Name 1'),
+    Device("2", 'Name 2'),
+    Device("3", 'Name 3'),
   ];
   bool isLoading = false;
 
@@ -49,7 +49,7 @@ class _CompanyDevicesPageState extends State<CompanyDevicesPage> {
       context,
       CupertinoPageRoute(
         builder: (context) => CompanyUsersPage(
-          user: widget.user,
+          company: widget.company,
         ),
       ),
     );
@@ -60,7 +60,7 @@ class _CompanyDevicesPageState extends State<CompanyDevicesPage> {
       context,
       CupertinoPageRoute(
         builder: (context) => CompanyDevicesPage(
-          user: widget.user,
+          company: widget.company,
         ),
       ),
     );
@@ -95,7 +95,7 @@ class _CompanyDevicesPageState extends State<CompanyDevicesPage> {
         ),
       ),
     );
-    widget.user = User(0, '', '', '', '', false);
+    widget.company = Company('', '');
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -141,6 +141,10 @@ class _CompanyDevicesPageState extends State<CompanyDevicesPage> {
     );
   }
 
+  deleteDevice(Device device) {
+    
+  }
+
   @override
   void initState() {
     loadData();
@@ -164,7 +168,7 @@ class _CompanyDevicesPageState extends State<CompanyDevicesPage> {
                   decoration: const BoxDecoration(
                     color: Colors.white,
                   ),
-                  child: Text(widget.user.username,
+                  child: Text(widget.company.username,
                       style: const TextStyle(fontSize: 24)),
                 ),
                 Column(
@@ -241,9 +245,10 @@ class _CompanyDevicesPageState extends State<CompanyDevicesPage> {
                   child: ListView.builder(
                     itemCount: devices.length,
                     itemBuilder: (BuildContext context, index) {
-                      return SensorCard(
+                      return CompanySensorCard(
                         device: devices[index],
-                        user: widget.user,
+                        company: widget.company,
+                        deleteDeviceCallback: deleteDevice,
                       );
                     },
                   ),

@@ -8,7 +8,7 @@ import 'package:iot/common/constants.dart';
 import 'package:iot/main.dart';
 import 'package:iot/model/device.dart';
 import 'package:iot/model/user.dart';
-import 'package:iot/view/sensor-card.dart';
+import 'package:iot/view/user/company-sensor-card.dart';
 
 class LandingPage extends StatefulWidget {
   User user;
@@ -22,16 +22,17 @@ class LandingPage extends StatefulWidget {
 class _LandingPageState extends State<LandingPage> {
   final deviceNameController = TextEditingController();
 
-  final descriptionController = TextEditingController();
+  /*final descriptionController = TextEditingController();
   final companyController = TextEditingController();
   final data1Controller = TextEditingController();
   final data2Controller = TextEditingController();
-  final data3Controller = TextEditingController();
+  final data3Controller = TextEditingController();*/
+
 
   List devices = [
-    Device(0, 'Name 1', 'Description', 'Current value', DateTime.now()),
-    Device(1, 'Name 2', 'Description', 'Current value', DateTime.now()),
-    Device(2, 'Name 3', 'Description', 'Current value', DateTime.now()),
+   // Device("1", 'Name 1'),
+   // Device("2", 'Name 2'),
+   // Device("3", 'Name 3'),
   ];
   bool isLoading = false;
 
@@ -52,54 +53,96 @@ class _LandingPageState extends State<LandingPage> {
     // setState(() {
     //   isLoading = false;
     // });
+
+    devices.clear();
+    await getAllDevices(widget.user);
+    setState(() {
+       isLoading = false;
+    });
   }
 
-  fetchTasksByUser() async {
-    final response = await http.get(
-      Uri.parse(
-        '${Constants.BASE_URL}/task/allByUserId/${widget.user.id}',
-      ),
-      headers: {'Authorization': 'Bearer ${widget.user.token}'},
+  getAllDevices(user) async{
+      final registerRequest = {
+        'name': user.username,
+        'password': user.password,
+      };
+      try{
+          String username = registerRequest['name'];
+          final response = await http.get(
+              Uri.parse('${Constants.BASE_URL}/person/devices?username=$username'),
+              headers: {'Authorization': 'Bearer ${""}'},
+          );
+          if (response.statusCode == 200) {  
+              List<dynamic> deviceList = jsonDecode(response.body);  
+              setState(() {
+                  devices = deviceList.map((deviceData) {
+                  return Device.fromJson(deviceData); 
+                  }).toList();
+              });
+          } else {
+             print('Failed to load devices: ${response.statusCode}');
+          }
+
+      } catch(e){
+            print('Error during device query: $e');
+      }
+
+  }
+
+  
+  addNewDevice(user) async {
+  var deviceName = deviceNameController.text; 
+  print('Device name: $deviceName');
+
+  var createDeviceRequest = {
+    'login': {
+      'name': user.username, 
+      'password': user.password 
+    },
+    'type': deviceName 
+  };
+
+  try {
+
+    final response = await http.post(
+      Uri.parse('${Constants.BASE_URL}/person/create_device'), 
+      headers: {
+        'Content-Type': 'application/json', 
+      },
+      body: jsonEncode(createDeviceRequest), 
     );
-    final decodedList = json.decode(response.body);
-    for (var element in decodedList) {
-      devices.add(Device.fromJson(element));
-    }
-  }
 
-  fetchTaskPrescriberUserData() async {
+
+    if (response.statusCode == 201) {
+      print("Device created successfully!");
+      // TODO: loadData() !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    } else if (response.statusCode == 401) {
+      print("Error: Login unsuccessful.");
+    } else {
+      print("Failed to create device. Status code: ${response.statusCode}");
+      print("Error: ${response.body}");
+    }
+  } catch (e) {
+
+    print("Error occurred while creating device: $e");
+  }
+}
+
+
+ /* fetchTaskPrescriberUserData() async {
     for (Device device in devices) {
       final response = await http.get(
         Uri.parse(
           '${Constants.BASE_URL}/users/user/99999999999',
         ),
-        headers: {'Authorization': 'Bearer ${widget.user.token}'},
+        headers: {'Authorization': 'Bearer ${""}'},
       );
       var decodedUser = jsonDecode(response.body);
 
       // task.creatorFirstName = decodedUser['firstName'];
       // task.creatorLastName = decodedUser['lastName'];
     }
-  }
-
-  fetchTaskPrescriberAvatar() async {
-    for (Device task in devices) {
-      try {
-        final response = await http.get(
-          Uri.parse('${Constants.BASE_URL}/users/images/99999999.png'),
-          headers: {'Authorization': 'Bearer ${widget.user.token}'},
-        );
-
-        if (response.statusCode == 200) {
-          setState(() {
-            // task.creatorImage = response.bodyBytes;
-          });
-        } else {}
-      } catch (e) {
-        print(e);
-      }
-    }
-  }
+  }*/
 
   addDevicePopup() {
     showDialog(
@@ -108,45 +151,15 @@ class _LandingPageState extends State<LandingPage> {
         return AlertDialog(
           title: const Text('Add a new device'),
           content: SizedBox(
-            height: 400,
+            height: 150,
             width: 300,
             child: Column(
               children: <Widget>[
                 TextField(
                   decoration: const InputDecoration(
-                    labelText: 'Device name',
+                    labelText: 'Device type',
                   ),
                   controller: deviceNameController,
-                ),
-                TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                  ),
-                  controller: descriptionController,
-                ),
-                TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Company',
-                  ),
-                  controller: companyController,
-                ),
-                TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Data1',
-                  ),
-                  controller: data1Controller,
-                ),
-                TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Data2',
-                  ),
-                  controller: data2Controller,
-                ),
-                TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Data3',
-                  ),
-                  controller: data3Controller,
                 ),
               ],
             ),
@@ -160,7 +173,7 @@ class _LandingPageState extends State<LandingPage> {
             ),
             TextButton(
               onPressed: () {
-                addNewDevice();
+                addNewDevice(widget.user);
                 Navigator.of(context).pop();
               },
               child: const Text('Add'),
@@ -171,21 +184,12 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  addNewDevice() {
+/*  addNewDevice() {
     var deviceName = deviceNameController.text;
-    var description = descriptionController.text;
-    var company = companyController.text;
-    var data1 = data1Controller.text;
-    var data2 = data2Controller.text;
-    var data3 = data3Controller.text;
-
+    //TODO add device POST
     print(deviceName);
-    print(description);
-    print(company);
-    print(data1);
-    print(data2);
-    print(data3);
-  }
+    
+  }*/
 
   logout() {
     Navigator.push(
@@ -200,7 +204,7 @@ class _LandingPageState extends State<LandingPage> {
         ),
       ),
     );
-    widget.user = User(0, '', '', '', '', false);
+    widget.user = User("", "", "", 0);
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -341,6 +345,7 @@ class _LandingPageState extends State<LandingPage> {
                       return SensorCard(
                         device: devices[index],
                         user: widget.user,
+                        deleteDeviceCallback: deleteDevice,
                       );
                     },
                   ),

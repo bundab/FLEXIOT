@@ -82,7 +82,7 @@ public class CompanyController {
 
         // Validate the company's password
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        if (!loginRequest.password.equals(company.getPassword())) {
+        if (!encoder.matches(loginRequest.password,company.getPassword())) {
             return new ResponseEntity<>("Invalid password for company!", HttpStatus.UNAUTHORIZED); // 401 Unauthorized
         }
 
@@ -93,7 +93,7 @@ public class CompanyController {
         }
 
         // Check if the person is already in the company
-        if (person.getCompany() != null && person.getCompany().getName().equals(loginRequest.name)) {
+        if (person.getCompany() != null && person.getCompany().equals(company)) {
             return new ResponseEntity<>("Person is already in this company!", HttpStatus.CONFLICT); // 409 Conflict
         }
 
@@ -117,7 +117,8 @@ public class CompanyController {
         }
 
         // Validate the company's password
-        if (!password.trim().equals(company.getPassword().trim())) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        if (!encoder.matches(password, company.getPassword())) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 401 Unauthorized
         }
 

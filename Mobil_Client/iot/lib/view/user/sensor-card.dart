@@ -1,32 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:iot/model/company.dart';
 import 'package:iot/model/device.dart';
 import 'package:iot/model/user.dart';
-import 'package:iot/view/company/company-user-detail-page.dart';
+import 'package:iot/view/user/sensor-detail.dart';
 
-class UserCard extends StatefulWidget {
-  UserCard({
+class SensorCard extends StatefulWidget {
+  SensorCard({
     super.key,
-    required this.user,
-    required this.company
+    required this.device,
+    required this.user, 
+    required this.deleteDeviceCallback,
   });
+  Device device;
   final User user;
-  final Company company;
+  final Function deleteDeviceCallback;
 
   @override
-  State<UserCard> createState() => _UserCardState();
+  State<SensorCard> createState() => _SensorCardState();
 }
 
-class _UserCardState extends State<UserCard> {
+class _SensorCardState extends State<SensorCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => UserDetail(
+          builder: (context) => SensorDetail(
+            device: widget.device,
             user: widget.user,
-            company: widget.company,
           ),
         ),
       ),
@@ -52,14 +53,14 @@ class _UserCardState extends State<UserCard> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        widget.user.username,
+                        widget.device.id,
                         style: const TextStyle(
                             color: Colors.black,
                             fontSize: 25,
                             fontWeight: FontWeight.bold),
                       ),
                       IconButton(
-                        onPressed: () => print(""),
+                        onPressed: () => widget.deleteDeviceCallback(widget.device),
                         icon: const Icon(
                           Icons.delete,
                           color: Colors.red,
@@ -79,25 +80,18 @@ class _UserCardState extends State<UserCard> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text("Id:"),
-                                  Text(widget.user.id),
+                                  Text(widget.device.id),
                                 ],
                               ),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text("Username:"),
-                                  Text(widget.user.username),
+                                  const Text("Type:"),
+                                  Text(widget.device.type),
                                 ],
                               ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text("Age:"),
-                                  Text(widget.user.age.toString()),
-                                ],
-                              ),
+                              
                             ],
                           ),
                         ],
