@@ -34,17 +34,20 @@ public class PersonController {
     private DeviceRepository deviceRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody Person person) {
+    public ResponseEntity<String> register(@RequestBody LoginRequest request) {
         // Check if the username already exists
-        if (personRepository.findByUsername(person.getUsername()) != null) {
+        if (personRepository.findByUsername(request.name) != null) {
             return new ResponseEntity<>("Username already exists!", HttpStatus.CONFLICT); // 409 Conflict
         }
 
+
         // Hash the password and save the person
-        String hashedPassword = passwordEncoder.encode(person.getPassword());
+        String hashedPassword = passwordEncoder.encode(request.password);
+        Person person = new Person();
+        person.setUsername(request.name);
         person.setPassword(hashedPassword);
 
-        personRepository.save(person);
+        personRepository.insert(person);
 
         // Return success response
         String responseMessage = "Person registered successfully: " + person.getUsername();
@@ -62,15 +65,16 @@ public class PersonController {
     }
 
     @GetMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest lr) {
+    public ResponseEntity<Person> login(@RequestBody LoginRequest lr) {
 
         Person person = personRepository.findByUsername(lr.name);
 
         if (person != null && passwordEncoder.matches(lr.password, person.getPassword())) {
-            return ResponseEntity.ok("Login successful! Age: " + person.getAge());
+            //return ResponseEntity.ok("Login successful! Age: " + person.getAge());
+            return ResponseEntity.ok(person);
         }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(person);
     }
 
     @GetMapping("/devices")

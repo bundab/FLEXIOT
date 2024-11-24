@@ -34,6 +34,7 @@ public class DeviceController {
                 throw new RuntimeException(e);
             }
             device.setValues(real_device.getValues());
+
         }
 
         // Return the list of devices with 200 OK
