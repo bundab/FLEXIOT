@@ -79,9 +79,9 @@ public class PersonController {
     }
 
     @GetMapping("/devices")
-    public ResponseEntity<List<Device>> getAllDevicesForPerson(@RequestBody LoginRequest lr) {
+    public ResponseEntity<List<Device>> getAllDevicesForPerson(@RequestParam("name") String name,@RequestParam("password") String password)  {
         // Find the person by username
-        Person person = personRepository.findByUsername(lr.name);
+        Person person = personRepository.findByUsername(name);
 
         if (person == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // 200 OK

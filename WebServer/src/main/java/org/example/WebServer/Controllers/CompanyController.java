@@ -138,9 +138,9 @@ public class CompanyController {
     }
 
     @GetMapping("/devices")
-    public ResponseEntity<List<Device>> getAllDevicesForCompany(@RequestBody LoginRequest lr) {
+    public ResponseEntity<List<Device>> getAllDevicesInCompany(@RequestParam("name") String name, @RequestParam("password") String password)  {
         // Find the company by name
-        Company company = companyRepository.findByName(lr.name);
+        Company company = companyRepository.findByName(name);
 
         if (company == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // 200 OK
@@ -159,7 +159,6 @@ public class CompanyController {
 
         return new ResponseEntity<>(devices, HttpStatus.OK);
     }
-
 
 
     @PostMapping("/create_device")
