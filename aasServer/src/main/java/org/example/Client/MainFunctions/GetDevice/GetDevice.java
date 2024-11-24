@@ -57,4 +57,8 @@ public class GetDevice {
 
         return values;
     }
+
+    public ArrayList<String> getValues() {
+        return values;
+    }
 }
