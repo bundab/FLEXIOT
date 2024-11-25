@@ -75,7 +75,7 @@ public class PersonController {
             return ResponseEntity.ok(person);
         }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(person);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
     }
 
     @GetMapping("/devices")
@@ -120,7 +120,8 @@ public class PersonController {
         // Save the device and update the person
         deviceRepository.insert(device);
         personRepository.save(person);
-
+        System.out.println(device.getId());
+        System.out.println(DeviceTypeMapping.convertStringToDeviceType(cdr.type));
         RegisterDevice real_device = new RegisterDevice(device.getId(), DeviceTypeMapping.convertStringToDeviceType(cdr.type), cdr.login.name);
         try {
             real_device.execute();

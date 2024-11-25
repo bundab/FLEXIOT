@@ -69,7 +69,7 @@ public class CompanyController {
         }
 
         //return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials.");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(company);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
     }
 
     @PostMapping("/addPerson/{username}")
@@ -137,6 +137,7 @@ public class CompanyController {
         return new ResponseEntity<>(companies, HttpStatus.OK); // 200 OK
     }
 
+    @CrossOrigin(origins = "*")
     @GetMapping("/devices")
     public ResponseEntity<List<Device>> getAllDevicesInCompany(@RequestParam("name") String name, @RequestParam("password") String password)  {
         // Find the company by name

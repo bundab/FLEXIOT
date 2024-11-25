@@ -59,15 +59,13 @@ class _LoginPageState extends State<LoginPage> {
           body: jsonEncode(loginRequest),
         );
 
-        var responseBody = jsonDecode(response.body);
-
         var company = Company(
              username,
             password);
 
         if (response.statusCode == 200) {
           navigateAfterSubmitCompany(company);
-          var responseBody = jsonDecode(response.body);
+          //var responseBody = jsonDecode(response.body);
 
           print("user's username: " + user.username);
         } else {

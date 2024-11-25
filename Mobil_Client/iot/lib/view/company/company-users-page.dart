@@ -32,9 +32,9 @@ class _CompanyUsersPageState extends State<CompanyUsersPage> {
 
   List<dynamic> usersList = [];
   List users = [
-    User("1", 'Name 1', "", 0),
-    User("2", 'Name 2', "", 0),
-    User("3", 'Name 3', "", 0),
+    //User("1", 'Name 1', "", 0),
+    //User("2", 'Name 2', "", 0),
+    //User("3", 'Name 3', "", 0),
   ];
   bool isLoading = false;
 

@@ -29,9 +29,9 @@ class _CompanyDevicesPageState extends State<CompanyDevicesPage> {
   final data3Controller = TextEditingController();
 
   List devices = [
-    Device("1", 'Name 1'),
-    Device("2", 'Name 2'),
-    Device("3", 'Name 3'),
+  //  Device("1", 'Name 1'),
+   // Device("2", 'Name 2'),
+   // Device("3", 'Name 3'),
   ];
   bool isLoading = false;
 
@@ -77,46 +77,46 @@ getAllDevices(company) async{
   }
 
 
-  addNewDevice(user) async {
-  var deviceName = deviceNameController.text; 
-  print('Device name: $deviceName');
+  addNewDevice(company) async {
+    var deviceName = deviceNameController.text; 
+    print('Device name: $deviceName');
 
-  var createDeviceRequest = {
-    'login': {
-      'name': user.username, 
-      'password': user.password 
-    },
-    'type': deviceName 
-  };
-
-  try {
-
-    final response = await http.post(
-      Uri.parse('${Constants.BASE_URL}/company/create_device'), 
-      headers: {
-        'Content-Type': 'application/json', 
+    var createDeviceRequest = {
+      'login': {
+        'name': company.username, 
+        'password': company.password 
       },
-      body: jsonEncode(createDeviceRequest), 
-    );
+      'type': deviceName 
+    };
+
+    try {
+
+      final response = await http.post(
+        Uri.parse('${Constants.BASE_URL}/company/create_device'), 
+        headers: {
+          'Content-Type': 'application/json', 
+        },
+        body: jsonEncode(createDeviceRequest), 
+      );
 
 
-    if (response.statusCode == 201) {
-      print("Device created successfully!");
-     
-      setState(() {
-        devices.clear();
-        loadData();
-      });    
-    } else if (response.statusCode == 401) {
-      print("Error: Login unsuccessful.");
-    } else {
-      print("Failed to create device. Status code: ${response.statusCode}");
-      print("Error: ${response.body}");
+      if (response.statusCode == 201) {
+        print("Device created successfully!");
+      
+        setState(() {
+          devices.clear();
+          loadData();
+        });    
+      } else if (response.statusCode == 401) {
+        print("Error: Login unsuccessful.");
+      } else {
+        print("Failed to create device. Status code: ${response.statusCode}");
+        print("Error: ${response.body}");
+      }
+    } catch (e) {
+
+      print("Error occurred while creating device: $e");
     }
-  } catch (e) {
-
-    print("Error occurred while creating device: $e");
-  }
 }
 
 
@@ -142,21 +142,6 @@ getAllDevices(company) async{
     );
   }
 
-  /*addNewDevice() {
-    var deviceName = deviceNameController.text;
-    var description = descriptionController.text;
-    var company = companyController.text;
-    var data1 = data1Controller.text;
-    var data2 = data2Controller.text;
-    var data3 = data3Controller.text;
-
-    print(deviceName);
-    print(description);
-    print(company);
-    print(data1);
-    print(data2);
-    print(data3);
-  }*/
 
   logout() {
     Navigator.push(
@@ -225,6 +210,47 @@ getAllDevices(company) async{
   void initState() {
     loadData();
     super.initState();
+  }
+
+  
+  addDevicePopup() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Add a new device'),
+          content: SizedBox(
+            height: 150,
+            width: 300,
+            child: Column(
+              children: <Widget>[
+                TextField(
+                  decoration: const InputDecoration(
+                    labelText: 'Device type',
+                  ),
+                  controller: deviceNameController,
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                addNewDevice(widget.company);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -303,7 +329,7 @@ getAllDevices(company) async{
         title: const Text("Devices"),
         actions: [
           IconButton(
-            onPressed: () => addNewDevice(widget.company),
+            onPressed: () => addDevicePopup,
             icon: const Icon(Icons.add),
             color: Colors.black,
           ),
