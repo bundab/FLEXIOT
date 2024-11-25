@@ -12,6 +12,8 @@ public class Device {
 
     private String type;
 
+    private String iotId;
+
     private ArrayList<String> values = new ArrayList<>();
 
     public String getId() {
@@ -38,5 +40,13 @@ public class Device {
 
     public void setValues(ArrayList<String> values) {
         this.values = values;
+    }
+
+    public String getIotId() {
+        return iotId;
+    }
+
+    public void setIotId(String iotId) {
+        this.iotId = iotId;
     }
 }

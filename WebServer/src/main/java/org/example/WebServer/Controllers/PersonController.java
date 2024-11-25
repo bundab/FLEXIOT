@@ -89,7 +89,7 @@ public class PersonController {
 
         List<Device> devices = new ArrayList<Device>(person.getDevices());
         for (Device device : devices) {
-            GetDevice real_device = new GetDevice(device.getId(), DeviceTypeMapping.convertStringToDeviceType(device.getType()));
+            GetDevice real_device = new GetDevice(device.getIotId(), DeviceTypeMapping.convertStringToDeviceType(device.getType()));
             try {
                 real_device.execute();
             } catch (Exception e) {
@@ -115,14 +115,13 @@ public class PersonController {
         // Create the new device and associate it with the person
         Device device = new Device();
         device.setType(cdr.type);
+        device.setIotId(cdr.iot_id);
         person.getDevices().add(device);
 
         // Save the device and update the person
         deviceRepository.insert(device);
         personRepository.save(person);
-        System.out.println(device.getId());
-        System.out.println(DeviceTypeMapping.convertStringToDeviceType(cdr.type));
-        RegisterDevice real_device = new RegisterDevice(device.getId(), DeviceTypeMapping.convertStringToDeviceType(cdr.type), cdr.login.name);
+        RegisterDevice real_device = new RegisterDevice(device.getIotId(), DeviceTypeMapping.convertStringToDeviceType(cdr.type), cdr.login.name);
         try {
             real_device.execute();
         } catch (Exception e) {

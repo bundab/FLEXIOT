@@ -26,7 +26,7 @@ public class DeviceController {
         List<Device> devices = new ArrayList<>(devices_in_rep);
 
         for (Device device : devices) {
-            GetDevice real_device = new GetDevice(device.getId(), DeviceTypeMapping.convertStringToDeviceType(device.getType()));
+            GetDevice real_device = new GetDevice(device.getIotId(), DeviceTypeMapping.convertStringToDeviceType(device.getType()));
             try {
                 real_device.execute();
             } catch (Exception e) {
