@@ -1,0 +1,12 @@
+<div class="device-container">
+  <h2>Devices</h2>
+  <button (click)="listDevices()" class="btn btn-primary">List All Devices</button>
+
+  <h3>Available Devices:</h3>
+  <ul *ngIf="devices.length > 0; else noDevices">
+    <li *ngFor="let device of devices">{{ device }}</li>
+  </ul>
+  <ng-template #noDevices>
+    <p>No devices found.</p>
+  </ng-template>
+</div>

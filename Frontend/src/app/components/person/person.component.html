@@ -1,0 +1,72 @@
+<div class="person-container">
+  <h2>Person Management</h2>
+
+  <h3>Register a Person</h3>
+  <form (ngSubmit)="register()">
+    <div class="form-group">
+      <label for="username">Username:</label>
+      <input
+        type="text"
+        id="username"
+        [(ngModel)]="username"
+        name="username"
+        class="form-control"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input
+        type="password"
+        id="password"
+        [(ngModel)]="password"
+        name="password"
+        class="form-control"
+        required
+      />
+    </div>
+    <button type="submit" class="btn btn-primary">Register</button>
+  </form>
+
+  <h3>List All People</h3>
+  <button (click)="listDevices()" class="btn btn-secondary">List People</button>
+  <ul *ngIf="devices.length > 0; else noPeople">
+    <li *ngFor="let person of devices">{{ person }}</li>
+  </ul>
+  <ng-template #noPeople>
+    <p>No people found.</p>
+  </ng-template>
+
+  <h3>List Person Devices</h3>
+  <form (ngSubmit)="listDevices()">
+    <div class="form-group">
+      <label for="username-devices">Username:</label>
+      <input
+        type="text"
+        id="username-devices"
+        [(ngModel)]="username"
+        name="username"
+        class="form-control"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="password-devices">Password:</label>
+      <input
+        type="password"
+        id="password-devices"
+        [(ngModel)]="password"
+        name="password"
+        class="form-control"
+        required
+      />
+    </div>
+    <button type="submit" class="btn btn-primary">List Devices</button>
+  </form>
+  <ul *ngIf="devices.length > 0; else noPersonDevices">
+    <li *ngFor="let device of devices">{{ device }}</li>
+  </ul>
+  <ng-template #noPersonDevices>
+    <p>No devices found for this person.</p>
+  </ng-template>
+</div>

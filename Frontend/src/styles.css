@@ -1,0 +1,42 @@
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: whitesmoke;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.mat-icon {
+  vertical-align: middle;
+}
+
+/* Common classes in multiple components */
+.showOverlay {
+  display: block !important;
+  opacity: 1 !important;
+}
+
+.overlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transition: 0.5s ease;
+  opacity: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.overlay .custom-spinner {
+  top: calc(50vh - 50px);
+  left: calc(50vw - 50px);
+}

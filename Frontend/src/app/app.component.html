@@ -1,0 +1,23 @@
+<mat-toolbar color="primary" *ngIf="router.url !== '/login' && router.url !== '/' && router.url !== '' && router.url !== '/registration' && !router.url.startsWith('/github-login')">
+  <span class="brand-header">
+      <mat-icon> {{environment.icon}}</mat-icon> &nbsp;
+    {{environment.title}}
+  </span>
+  <span class="spacer"></span>
+  <button (click)="galleryclick()" mat-icon-button matTooltip="Galéria">
+    <mat-icon>image</mat-icon>
+  </button>
+  <button (click)="usersclick()" mat-icon-button matTooltip="Felhasználók" *ngIf="isUserAdmin">
+    <mat-icon>groups</mat-icon>
+  </button>
+  <button (click)="profileclick()" mat-icon-button matTooltip="Profil">
+    <mat-icon>person</mat-icon>
+  </button>
+  <button (click)="logoutclick()" mat-icon-button matTooltip="Kijelentkezés">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
+
+<div class="container">
+  <router-outlet></router-outlet>
+</div>

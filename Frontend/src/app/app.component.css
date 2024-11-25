@@ -1,0 +1,5 @@
+.container {
+  width: 80vw;
+  margin: 2rem 10vw 0;
+  min-height: calc(100vh - var(--mat-toolbar-standard-height) - 2rem);
+}
