@@ -149,7 +149,7 @@ public class CompanyController {
 
         List<Device> devices = new ArrayList<Device>(company.getDevices());
         for (Device device : devices) {
-            GetDevice real_device = new GetDevice(device.getId(), DeviceTypeMapping.convertStringToDeviceType(device.getType()));
+            GetDevice real_device = new GetDevice(device.getIotId(), DeviceTypeMapping.convertStringToDeviceType(device.getType()));
             try {
                 real_device.execute();
             } catch (Exception e) {
@@ -178,13 +178,14 @@ public class CompanyController {
         // Create the device and associate it with the company
         Device device = new Device();
         device.setType(cdr.type);
+        device.setIotId(cdr.iot_id);
         company.getDevices().add(device);
 
         // Save the device and update the company
         deviceRepository.insert(device);
         companyRepository.save(company);
 
-        RegisterDevice real_device = new RegisterDevice(device.getId(), DeviceTypeMapping.convertStringToDeviceType(cdr.type), cdr.login.name);
+        RegisterDevice real_device = new RegisterDevice(device.getIotId(), DeviceTypeMapping.convertStringToDeviceType(cdr.type), cdr.login.name);
         try {
             real_device.execute();
         } catch (Exception e) {
