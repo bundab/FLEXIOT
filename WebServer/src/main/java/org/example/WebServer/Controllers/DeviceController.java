@@ -33,7 +33,7 @@ public class DeviceController {
                 throw new RuntimeException(e);
             }
             device.setValues(real_device.getValues());
-
+            device.setId(device.getId());
         }
 
         // Return the list of devices with 200 OK

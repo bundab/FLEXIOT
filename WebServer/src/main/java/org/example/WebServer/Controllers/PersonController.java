@@ -96,6 +96,7 @@ public class PersonController {
                 throw new RuntimeException(e);
             }
             device.setValues(real_device.getValues());
+            device.setId(device.getIotId());
         }
 
         return new ResponseEntity<>(devices, HttpStatus.OK);
